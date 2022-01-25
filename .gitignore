@@ -1,6 +1,5 @@
 .DS_Store
 test.db
-posts.csv
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

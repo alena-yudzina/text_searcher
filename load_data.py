@@ -4,7 +4,6 @@ import pandas
 
 from app import Post, Rubric, db
 
-
 db.create_all()
 
 df = pandas.read_csv('posts.csv', parse_dates=['created_date'], converters={'rubrics': literal_eval})
