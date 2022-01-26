@@ -41,7 +41,21 @@ class Search(Resource):
         params = parser.parse_args()
         result = es.search(
             index='posts_search',
-            body={'query': {'match': {'text': params['text']}}}
+            body={
+                "query": {
+                    "match": {
+                        "text": params['text']
+                    }
+                },
+                "sort": [
+                    {
+                        "created_date": {
+                            "order": "asc"
+                        }
+                    }
+                ]
+            },
+            size=20,
         )
         matches = []
         for item in result['hits']['hits']:
@@ -55,7 +69,7 @@ class Search(Resource):
             )
         if not matches:
             return "No matches found", 404
-        return sorted(matches, key=lambda i: i['created_date'])[:20], 200
+        return matches, 200
 
     def delete(self, id):
         post = es.search(
