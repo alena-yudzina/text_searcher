@@ -1,0 +1,142 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Search API",
+    "description": "Searching and deleting posts with Elastisearch",
+    "contact": {
+      "name": "Elena Yudina",
+      "email": "ep.yudzina@gmail.com"
+    },
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "http://127.0.0.1:5000"
+    }
+  ],
+  "paths": {
+    "/search": {
+      "description": "Searching posts",
+      "get": {
+        "description": "Operation to find matches with text",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "text",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "properties": {
+                      "id": {
+                        "type": "integer",
+                        "example": 433
+                      },
+                      "text": {
+                        "type": "string",
+                        "example": "Любимых чувствуют душой,\\nИх не встречают в жизни дважды,\\nИм просто вместе хорошо,\\nА расстояние не важно.."
+                      },
+                      "created_date": {
+                        "type": "string",
+                        "example": "2019-01-09T12:17:29.000Z"
+                      },
+                      "rubrics": {
+                        "type": "string",
+                        "example": [
+                          "VK-1603736028819866",
+                          "VK-59138972463",
+                          "VK-13789129948"
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Unsuccess Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "properties": {
+                      "answer": {
+                        "type": "string",
+                        "example": "No matches found"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/delete": {
+      "description": "Delete post on id",
+      "delete": {
+        "parameters": [
+          {
+            "in": "query",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "properties": {
+                      "answer": {
+                        "type": "string",
+                        "example": "Post with id 5 was deleted"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Unsuccess Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "properties": {
+                      "answer": {
+                        "type": "string",
+                        "example": "Can't find post with id 5"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

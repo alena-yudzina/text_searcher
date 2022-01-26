@@ -35,7 +35,7 @@ class Rubric(db.Model):
 
 
 class Search(Resource):
-    def post(self):
+    def get(self):
         parser = reqparse.RequestParser()
         parser.add_argument('text')
         params = parser.parse_args()
@@ -68,10 +68,14 @@ class Search(Resource):
                 }
             )
         if not matches:
-            return "No matches found", 404
+            return {'answer': 'No matches found'}, 404
         return matches, 200
 
-    def delete(self, id):
+    def delete(self):
+        parser = reqparse.RequestParser()
+        parser.add_argument('id')
+        params = parser.parse_args()
+        id = params['id']
         post = es.search(
             index='posts_search',
             body={'query': {'match': {'id': id}}}
@@ -79,15 +83,15 @@ class Search(Resource):
         try:
             elastic_post_id = post['hits']['hits'][0]['_id']
         except IndexError:
-            return f"Can't find post with id {id}.", 400
+            return {'answer': f"Can't find post with id {id}."}, 400
 
         es.delete(index='posts_search', doc_type='_doc', id=elastic_post_id)
         post_in_db = db.session.get(Post, id)
         db.session.delete(post_in_db)
         db.session.commit()
-        return f'Post with id {id} is deleted.', 200
+        return {'answer': f'Post with id {id} was deleted.'}, 200
 
 
-api.add_resource(Search, '/search', '/delete/<int:id>')
+api.add_resource(Search, '/search', '/delete')
 if __name__ == '__main__':
     app.run(debug=True)
