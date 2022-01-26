@@ -1,7 +1,7 @@
 from elasticsearch import Elasticsearch
-from app import Post
-import tqdm
 from elasticsearch.helpers import streaming_bulk
+
+from app import Post
 
 
 def create_index(client):
@@ -37,18 +37,12 @@ def get_query():
 def main():
 
     client = Elasticsearch('http://localhost:9200')
+    client.indices.delete(index='posts_search', ignore=[400, 404])
     create_index(client)
-
-    print("Indexing documents...")
-    number_of_docs = 1500
-    progress = tqdm.tqdm(unit="docs", total=number_of_docs)
-    successes = 0
     for ok, action in streaming_bulk(
         client=client, index="posts_search", actions=get_query(),
     ):
-        progress.update(1)
-        successes += ok
-    print("Indexed %d/%d documents" % (successes, number_of_docs))
+        pass
 
 
 if __name__ == "__main__":

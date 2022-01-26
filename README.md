@@ -15,7 +15,20 @@ pip install -r requirements.txt
 python3 load_data.py
 ```
 
-Далее для создания поискового индекса выполните команду:
+Для запуска `ElasticSearch` выполните команды:
+```
+docker pull docker.elastic.co/elasticsearch/elasticsearch:7.16.3
+```
+```
+docker run -p 127.0.0.1:9200:9200 -p 127.0.0.1:9300:9300 -e "discovery.type=single-node" docker.elastic.co/elasticsearch/elasticsearch:7.16.3
+```
+
+Далее в отдельном окне терминала выполните команду для создания поискового индекса:
 ```
 python3 elastic.py
+```
+
+Для запуска приложения выполните команду:
+```
+python3 app.py
 ```

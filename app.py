@@ -1,8 +1,7 @@
 from datetime import datetime
-from urllib import response
 
 from elasticsearch import Elasticsearch
-from flask import Flask, redirect, render_template, request, url_for
+from flask import Flask
 from flask_restful import Api, Resource, reqparse
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import relationship
@@ -38,9 +37,12 @@ class Rubric(db.Model):
 class Search(Resource):
     def post(self):
         parser = reqparse.RequestParser()
-        parser.add_argument("text")
+        parser.add_argument('text')
         params = parser.parse_args()
-        result = es.search(index='posts_search', body={'query': {'match': {'text': params['text']}}})
+        result = es.search(
+            index='posts_search',
+            body={'query': {'match': {'text': params['text']}}}
+        )
         matches = []
         for item in result['hits']['hits']:
             matches.append(
@@ -51,9 +53,27 @@ class Search(Resource):
                     'rubrics': item['_source']['rubrics']
                 }
             )
+        if not matches:
+            return "No matches found", 404
         return sorted(matches, key=lambda i: i['created_date'])[:20], 200
 
+    def delete(self, id):
+        post = es.search(
+            index='posts_search',
+            body={'query': {'match': {'id': id}}}
+        )
+        try:
+            elastic_post_id = post['hits']['hits'][0]['_id']
+        except IndexError:
+            return f"Can't find post with id {id}.", 400
 
-api.add_resource(Search, "/search")
-if __name__ == "__main__":
+        es.delete(index='posts_search', doc_type='_doc', id=elastic_post_id)
+        post_in_db = db.session.get(Post, id)
+        db.session.delete(post_in_db)
+        db.session.commit()
+        return f'Post with id {id} is deleted.', 200
+
+
+api.add_resource(Search, '/search', '/delete/<int:id>')
+if __name__ == '__main__':
     app.run(debug=True)
